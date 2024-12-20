@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    form input, form select, form button {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    form button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      background-color: #218838;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    table th, table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #f1f1f1;
+    }
+
+    #total-expenses {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Expense Tracker</h1>
+
+    <!-- Expense Form -->
+    <form id="expense-form">
+      <input type="text" id="description" placeholder="Description" required>
+      <input type="number" id="amount" placeholder="Amount" required>
+      <select id="category">
+        <option value="food">Food</option>
+        <option value="transportation">Transportation</option>
+        <option value="shopping">Shopping</option>
+        <option value="others">Others</option>
+      </select>
+      <input type="date" id="date" required>
+      <button type="submit">Add Expense</button>
+    </form>
+
+    <!-- Expense List -->
+    <div id="expense-list">
+      <h2>Expenses</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="expense-table-body">
+          <!-- Expenses will be dynamically added here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Total Expenses -->
+    <div id="total-expenses">
+      <h2>Total: $<span id="total-amount">0</span></h2>
+    </div>
+  </div>
+
+  <script>
+    // Select Elements
+    const expenseForm = document.getElementById('expense-form');
+    const descriptionInput = document.getElementById('description');
+    const amountInput = document.getElementById('amount');
+    const categoryInput = document.getElementById('category');
+    const dateInput = document.getElementById('date');
+    const expenseTableBody = document.getElementById('expense-table-body');
+    const totalAmount = document.getElementById('total-amount');
+
+    // Initialize Expense List
+    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+    // Update UI
+    function updateUI() {
+      // Clear table body
+      expenseTableBody.innerHTML = '';
+
+      // Populate table
+      expenses.forEach((expense, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${expense.description}</td>
+          <td>$${expense.amount}</td>
+          <td>${expense.category}</td>
+          <td>${expense.date}</td>
+          <td><button onclick="deleteExpense(${index})">Delete</button></td>
+        `;
+        expenseTableBody.appendChild(row);
+      });
+
+      // Update total amount
+      const total = expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+      totalAmount.textContent = total.toFixed(2);
+
+      // Save to local storage
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+    }
+
+    // Add Expense
+    expenseForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const newExpense = {
+        description: descriptionInput.value,
+        amount: parseFloat(amountInput.value),
+        category: categoryInput.value,
+        date: dateInput.value,
+      };
+
+      expenses.push(newExpense);
+      updateUI();
+
+      // Clear form
+      expenseForm.reset();
+    });
+
+    // Delete Expense
+    function deleteExpense(index) {
+      expenses.splice(index, 1);
+      updateUI();
+    }
+
+    // Initialize App
+    updateUI();
+  </script>
+</body>
+</html>
